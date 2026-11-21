@@ -1,0 +1,10 @@
+import { Router } from "express";
+import { z } from "zod";
+import { db } from "../db.js";
+import { authenticate,allowRoles } from "../middleware/auth.js";
+import { asyncHandler } from "../utils/async-handler.js";
+import { HttpError } from "../utils/http-error.js";
+import { userIdFilter } from "../utils/user-filter.js";
+export const vendorRouter=Router();vendorRouter.use(authenticate,allowRoles("vendor"));
+vendorRouter.get("/profile",asyncHandler(async(req,res)=>{const user=await db.collection("users").findOne(userIdFilter(req.user!.id),{projection:{businessName:1,businessDescription:1,businessLocation:1,businessPhone:1}});if(!user)throw new HttpError(404,"Vendor profile not found.");res.json({profile:{businessName:user.businessName||"",businessDescription:user.businessDescription||"",businessLocation:user.businessLocation||"",businessPhone:user.businessPhone||""}});}));
+vendorRouter.put("/profile",asyncHandler(async(req,res)=>{const data=z.object({businessName:z.string().min(2).max(100),businessDescription:z.string().max(1000).optional().default(""),businessLocation:z.string().max(150).optional().default(""),businessPhone:z.string().max(30).optional().default("")}).parse(req.body);const result=await db.collection("users").updateOne(userIdFilter(req.user!.id),{$set:{...data,updatedAt:new Date()}});if(!result.matchedCount)throw new HttpError(404,"Vendor profile not found.");res.json({message:"Restaurant profile updated."});}));
