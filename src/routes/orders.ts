@@ -1,3 +1,4 @@
+
 import { Router } from "express";
 import { ObjectId } from "mongodb";
 import { z } from "zod";
@@ -21,7 +22,7 @@ ordersRouter.post("/", authenticate, allowRoles("customer", "vendor"), asyncHand
   const data = z.object({
     itemId: z.string().refine((value) => ObjectId.isValid(value)),
     deliveryDate: z.string().min(8),
-    deliveryAddress: z.string().min(8).max(500),
+    deliveryAddress: z.string().trim().min(1, "Delivery address is required.").max(500),
     message: z.string().max(1000).optional().default(""),
   }).parse(req.body);
 
