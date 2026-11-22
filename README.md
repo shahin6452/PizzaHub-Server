@@ -12,9 +12,6 @@ subscription processing.
 -   **Client repository:** https://github.com/shahin6452/PizzaHub-Client
 -   **Server repository:** https://github.com/shahin6452/PizzaHub-Server
 
-Replace the server repository placeholder with the final GitHub
-repository URL.
-
 ## Features
 
 -   Express REST API built with TypeScript.
@@ -65,8 +62,8 @@ package names and versions.
 1.  Clone this repository:
 
     ``` bash
-    git clone ADD_SERVER_GITHUB_URL
-    cd YOUR_SERVER_FOLDER
+    git clone https://github.com/shahin6452/PizzaHub-Server.git
+    cd PizzaHub-Server
     ```
 
 2.  Install packages:
@@ -186,7 +183,7 @@ do not use Stripe payments.
 
 Configure the webhook endpoint:
 
-`https://YOUR_SERVER_DOMAIN/api/subscriptions/webhook`
+`https://pizzahub-server-tibd.onrender.com/api/subscriptions/webhook`
 
 Subscribe to these events:
 
