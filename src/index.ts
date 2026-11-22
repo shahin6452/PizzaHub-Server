@@ -1,3 +1,4 @@
+
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -18,16 +19,24 @@ import { vendorRouter } from "./routes/vendor.js";
 import { notFound, errorHandler } from "./middleware/error.js";
 
 const app = express();
+
 app.disable("x-powered-by");
 app.set("trust proxy", 1);
 
-app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
-app.use(cors({
-  origin: env.CLIENT_URL,
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "x-requested-with"],
-}));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
+
+app.use(
+  cors({
+    origin: env.CLIENT_URL,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-requested-with"],
+  }),
+);
 
 const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -61,7 +70,11 @@ app.post(
         ? signatureHeader[0]
         : signatureHeader;
 
-      const result = await stripeWebhookHandler(req.body as Buffer, signature);
+      const result = await stripeWebhookHandler(
+        req.body as Buffer,
+        signature,
+      );
+
       res.json(result);
     } catch (error) {
       next(error);
@@ -72,12 +85,15 @@ app.post(
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
-app.use("/api", rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 300,
-  standardHeaders: "draft-8",
-  legacyHeaders: false,
-}));
+app.use(
+  "/api",
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 300,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+  }),
+);
 
 app.get("/api/health", (_req, res) => {
   res.json({
@@ -103,6 +119,10 @@ app.use(notFound);
 app.use(errorHandler);
 
 await connectDatabase();
-app.listen(env.PORT, () => {
-  console.log(`PizzaHub API listening on port ${env.PORT}`);
+
+// Use Render's assigned port; fall back to 5000 locally.
+const port = Number(process.env.PORT) || 5000;
+
+app.listen(port, "0.0.0.0", () => {
+  console.log(`PizzaHub API listening on port ${port}`);
 });
