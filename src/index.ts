@@ -99,7 +99,7 @@ app.use("/api/vendor", vendorRouter);
 app.use("/api/favorites", favoritesRouter);
 app.use("/api/reviews", reviewsRouter);
 
-app.use(notFound);
+app.use(notFound)
 app.use(errorHandler);
 
 await connectDatabase();
