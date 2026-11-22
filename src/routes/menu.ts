@@ -11,7 +11,7 @@ export const menuRouter = Router();
 
 function getRouteParam(value: unknown, label: string): string {
   if (typeof value !== "string" || !value.trim()) {
-    throw new HttpError(400, `Invalid ${label}.`);
+    throw new HttpError(400, `Invalid ${label}.`)
   }
   return value;
 }
