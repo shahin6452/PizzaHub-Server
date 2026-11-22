@@ -7,12 +7,13 @@ subscription processing.
 
 ## Live website and repositories
 
--   **Live website:** `ADD_LIVE_WEBSITE_URL`
--   **Client repository:** `ADD_CLIENT_GITHUB_URL`
--   **Server repository:** `ADD_SERVER_GITHUB_URL`
+-   **Live website:** https://pizzahub6452.vercel.app
+-   **Backend API:** https://pizzahub-server-tibd.onrender.com
+-   **Client repository:** https://github.com/shahin6452/PizzaHub-Client
+-   **Server repository:** https://github.com/shahin6452/PizzaHub-Server
 
-Replace these placeholders after deployment and confirm the repository
-URLs.
+Replace the server repository placeholder with the final GitHub
+repository URL.
 
 ## Features
 
@@ -74,15 +75,15 @@ package names and versions.
     npm install
     ```
 
-3.  Create `.env` from `.env.example`:
+3.  Create `.env` from `.env.example`.
 
-    **Windows PowerShell**
+    **Windows PowerShell:**
 
     ``` powershell
     Copy-Item .env.example .env
     ```
 
-    **macOS / Linux**
+    **macOS / Linux:**
 
     ``` bash
     cp .env.example .env
@@ -105,7 +106,7 @@ package names and versions.
       `BETTER_AUTH_SECRET`                Better Auth secret
 
       `BETTER_AUTH_URL`                   Better Auth public base URL; use
-                                          frontend origin
+                                          the frontend origin
 
       `API_PUBLIC_URL`                    Public backend API origin
 
@@ -170,9 +171,13 @@ README.
 
 ## API health check
 
-When the server is running, check:
+When the server is running locally, check:
 
 `GET http://localhost:5000/api/health`
+
+For the deployed backend, check:
+
+`https://pizzahub-server-tibd.onrender.com/api/health`
 
 ## Stripe subscription webhook
 
@@ -183,32 +188,48 @@ Configure the webhook endpoint:
 
 `https://YOUR_SERVER_DOMAIN/api/subscriptions/webhook`
 
-Subscribe to:
+Subscribe to these events:
 
 -   `checkout.session.completed`
 -   `customer.subscription.updated`
 -   `customer.subscription.deleted`
 
-Set the signing secret as `STRIPE_WEBHOOK_SECRET`. The webhook handler
-verifies the Stripe signature before updating subscription status.
+Set the webhook signing secret as `STRIPE_WEBHOOK_SECRET`. The webhook
+handler verifies the Stripe signature before updating subscription
+status.
+
+**Current deployment note:** The configured Stripe webhook shown during
+deployment is a Sandbox/Test-mode endpoint. It is for testing only and
+does not process real customer payments. To accept live payments,
+complete Stripe's legitimate account onboarding and verification, then
+create a separate Live-mode webhook and configure the Live API key, Live
+webhook signing secret, and Live Premium Price ID in the production
+environment. A local Stripe CLI listener is not required for the
+deployed webhook endpoint.
 
 ## Deployment
 
-Deploy this repository as a separate Render Web Service:
+The backend is deployed as a separate Render Web Service:
 
-1.  Create a Web Service connected to the server GitHub repository.
+1.  Connect this repository to a Render Web Service.
 2.  Configure build and start commands to match `package.json` and the
     included Render configuration.
-3.  Add required production environment variables.
+3.  Add the required production environment variables in Render.
 4.  Use MongoDB Atlas and allow the deployed service to connect.
 5.  Set `NODE_ENV=production`.
 6.  Set `CLIENT_URL` and `BETTER_AUTH_URL` to the exact deployed
-    frontend origin.
-7.  Set `API_PUBLIC_URL` to the exact deployed backend origin.
-8.  Update Google OAuth redirect settings and Stripe webhook URL for
-    production.
-9.  Verify `/api/health`, CORS, authentication, protected routes,
-    uploads, and Stripe webhooks.
+    frontend origin: `https://pizzahub6452.vercel.app`.
+7.  Set `API_PUBLIC_URL` to the deployed backend origin:
+    `https://pizzahub-server-tibd.onrender.com`.
+8.  Add the deployed frontend origin to the server's CORS allowlist, if
+    configured separately.
+9.  Update Google OAuth authorized JavaScript origins and redirect URI
+    for the deployed frontend. The production callback URI is
+    `https://pizzahub6452.vercel.app/api/auth/callback/google`.
+10. Configure the Stripe webhook endpoint and matching signing secret
+    for the selected Stripe mode (Sandbox/Test or Live).
+11. Verify `/api/health`, CORS, authentication, protected routes,
+    uploads, and Stripe webhook deliveries.
 
 Enable `MONGODB_USE_TRANSACTIONS=true` only when the MongoDB deployment
 supports transactions (replica set or sharded cluster).
@@ -219,5 +240,7 @@ supports transactions (replica set or sharded cluster).
 -   Use strong, unique production secrets.
 -   Do not expose Admin credentials in GitHub.
 -   Keep Stripe webhook signature verification enabled.
+-   Keep Test-mode and Live-mode Stripe keys and webhook secrets
+    separate.
 -   Enforce roles and ownership on the server; do not trust
     client-supplied roles.
